@@ -26,8 +26,13 @@ class BurpExtender(IBurpExtender,IHttpListener):
                         res = self._callbacks.makeHttpRequest(messageinfo.getHttpService(),newRequest)
                         response = res.getResponse()
                         analyze_response = self._helpers.analyzeResponse(response)
+                        reheaders = analyze_response.getHeaders()
+                        #print(str(reheaders))
+                        for re_header in reheaders :
+                            if re_header.startswith("location:") :
+                                location = re_header
                         st_code = analyze_response.getStatusCode()
-                        if st_code == 302:
+                        if st_code == 302 and "www.baidu.com" in str(location):
                             issue =  CustomScanIssue(messageinfo.getHttpService(),self._helpers.analyzeRequest(res).getUrl(),[self._callbacks.applyMarkers(res, None, None)],
                                 "Url Location",
                                 'Vuln Parameter is   {}  \n Recvieved data from: {}'.format(str(parameterName),str(pyadload)),
